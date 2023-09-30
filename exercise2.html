@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title> Directory List </title>
+
+        <style>
+            #dirList {
+                list-style-type: none;
+                padding: 0;
+            }
+            .dirItem {
+                padding: 10px;
+                border-bottom: 1px solid #ccc;
+            }
+            .dirTitle {
+                font-weight: bold;
+                font-size: 1.5em;
+                font-family: Arial;
+            }
+            span, p {
+                padding-right: 10px;
+                font-family: Arial;
+            }
+            #dirList span:first-child {
+                font-weight: bold;
+                font-size: 1.2em;
+            }
+            a {
+                display: inline-block;
+                padding: 10px 20px;
+                text-decoration: none;
+                color: #4f2c1d;
+                background-color: #ffb500;
+                border-radius: 10px;
+                font-weight: 500;
+            }
+        </style>
+    </head>
+
+    <body>
+        <p class="dirTitle"> Directory List </p>
+        <ul id="dirList"></ul>
+
+        <script>
+            const API_URL = 'https://corsproxy.io/?' + encodeURIComponent('https://api.adelphi.edu/v1/departments/');
+            const directoryList = document.getElementById('dirList');
+
+            function fetchDirectoryData(url) {
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.results.forEach(item => {
+                            const listItem = document.createElement('li');
+                            const listItemId = document.createElement('span');
+                            const listItemCode = document.createElement('span');
+                            const listItemText = document.createElement('p');
+                            const listItemPhone = document.createElement('span');
+                            const listItemFax = document.createElement('span');
+                            const listItemEmail = document.createElement('span');
+                            const listItemUrl = document.createElement('a');
+
+                            listItem.classList.add('dirItem');
+                            listItemId.textContent = "ID: " + item.id;
+                            listItemCode.textContent = item.code;
+                            listItemText.textContent = item.title;
+                            listItemPhone.textContent = `Phone: ${item.phone}`;
+                            listItemFax.textContent = `Fax: ${item.fax}`;
+
+                            if (item.email) {
+                                listItemEmail.textContent = `Email: ${item.email}`;
+                            }
+
+                            if (item.url) {
+                                listItemUrl.textContent = `Website`;
+                                listItemUrl.href = item.url;
+                                listItemUrl.target = '_blank';
+                                listItemUrl.rel = 'noopener noreferrer';
+                            }
+
+                            listItem.appendChild(listItemId);
+                            listItem.appendChild(listItemCode);
+                            listItem.appendChild(listItemText);
+                            listItem.appendChild(listItemPhone);
+                            listItem.appendChild(listItemFax);
+
+                            if (item.email) {
+                                listItem.appendChild(listItemEmail);
+                            }
+
+                            if (item.url) {
+                                listItem.appendChild(listItemUrl);
+                            }
+
+                            directoryList.appendChild(listItem);
+                        });
+
+                        if (data.next !== null) {
+                            const nextUrl = 'https://corsproxy.io/?' + encodeURIComponent(data.next);
+                            fetchDirectoryData(nextUrl);
+                        }
+                    })
+                    .catch(error => console.log('Error:', error));
+            }
+
+            fetchDirectoryData(API_URL);
+
+        </script>
+    </body>
+
+</html>
